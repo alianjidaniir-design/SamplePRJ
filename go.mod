@@ -1,3 +1,3 @@
-module SamplePRJ
+module github.com/alianjidaniir-design/SamplePRJ
 
-go 1.25
+go 1.25.3
