@@ -1,11 +1,11 @@
 package userSchema
 
-import "github.com/alianjidaniir-design/SamplePRJ/models/datamodel"
+import userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
 
 type CreateResponse struct {
-	User datamodel.User `json:"user" msgpack:"user"`
+	User userDataModel.User `json:"user" msgpack:"user"`
 }
 
 type InfoResponse struct {
-	User datamodel.User `json:"user" msgpack:"user"`
+	User userDataModel.User `json:"user" msgpack:"user"`
 }

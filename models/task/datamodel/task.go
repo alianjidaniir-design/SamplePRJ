@@ -6,9 +6,3 @@ type Task struct {
 	Description string `json:"description" msgpack:"description"`
 	CreatedAt   string `json:"createdAt" msgpack:"createdAt"`
 }
-
-type User struct {
-	ID       int64  `json:"id" msgpack:"id"`
-	Username string `json:"username" msgpack:"username"`
-	Email    string `json:"email" msgpack:"email"`
-}

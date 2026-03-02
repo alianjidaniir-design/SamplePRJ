@@ -2,18 +2,46 @@ package user
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/userSchema"
-	"github.com/alianjidaniir-design/SamplePRJ/models/datamodel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
-func (repo *Repository) Create(ctx context.Context, req commonSchema.BaseRequest[userSchema.CreateRequest], user datamodel.User) (res userSchema.CreateResponse, errStr string, code int, err error) {
+type Repository struct {
+	idCounter int64
+	users     []userDataModel.User
+	lock      sync.RWMutex
+}
+
+var (
+	once    sync.Once
+	repoIns *Repository
+)
+
+func GetRepo() *Repository {
+	once.Do(func() {
+		repoIns = &Repository{
+			idCounter: 10,
+			users:     []userDataModel.User{},
+		}
+	})
+
+	return repoIns
+}
+
+func (repo *Repository) nextID() int64 {
+	return atomic.AddInt64(&repo.idCounter, 1)
+}
+
+func (repo *Repository) Create(ctx context.Context, req commonSchema.BaseRequest[userSchema.CreateRequest], user userDataModel.User) (res userSchema.CreateResponse, errStr string, code int, err error) {
 	_ = ctx
 	_ = user
 
-	newUser := datamodel.User{
+	newUser := userDataModel.User{
 		ID:       repo.nextID(),
 		Username: req.Body.Username,
 		Email:    req.Body.Email,

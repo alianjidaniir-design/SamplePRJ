@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/alianjidaniir-design/SamplePRJ/models/task"
-	_ "github.com/alianjidaniir-design/SamplePRJ/models/user"
 	"github.com/alianjidaniir-design/SamplePRJ/services/core/route"
 	"github.com/gofiber/fiber/v2"
 )

@@ -5,12 +5,12 @@ import (
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/userSchema"
-	"github.com/alianjidaniir-design/SamplePRJ/models/datamodel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/customErr"
 )
 
-func (repo *Repository) Info(ctx context.Context, req commonSchema.BaseRequest[userSchema.InfoRequest], user datamodel.User) (res userSchema.InfoResponse, errStr string, code int, err error) {
+func (repo *Repository) Info(ctx context.Context, req commonSchema.BaseRequest[userSchema.InfoRequest], user userDataModel.User) (res userSchema.InfoResponse, errStr string, code int, err error) {
 	_ = ctx
 	_ = user
 

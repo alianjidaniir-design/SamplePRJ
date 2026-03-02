@@ -6,11 +6,12 @@ import (
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
-	"github.com/alianjidaniir-design/SamplePRJ/models/datamodel"
+	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
-func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest], user datamodel.User) (res taskSchema.ListResponse, errStr string, code int, err error) {
+func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest], user userDataModel.User) (res taskSchema.ListResponse, errStr string, code int, err error) {
 	_ = ctx
 	_ = user
 
@@ -24,7 +25,7 @@ func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[t
 	}
 
 	repo.lock.RLock()
-	clonedTasks := make([]datamodel.Task, len(repo.tasks))
+	clonedTasks := make([]taskDataModel.Task, len(repo.tasks))
 	copy(clonedTasks, repo.tasks)
 	repo.lock.RUnlock()
 
@@ -54,7 +55,7 @@ func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[t
 
 func cloneListResponse(source taskSchema.ListResponse) taskSchema.ListResponse {
 	cloned := source
-	cloned.Tasks = make([]datamodel.Task, len(source.Tasks))
+	cloned.Tasks = make([]taskDataModel.Task, len(source.Tasks))
 	copy(cloned.Tasks, source.Tasks)
 	return cloned
 }

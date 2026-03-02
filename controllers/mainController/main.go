@@ -1,4 +1,4 @@
-package maincontroller
+package mainController
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
-	"github.com/alianjidaniir-design/SamplePRJ/models/datamodel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 	"github.com/gofiber/fiber/v2"
 )
@@ -54,9 +54,9 @@ func Response(ctx *fiber.Ctx, res any) error {
 	return ctx.Status(status.StatusOK).JSON(responseEnvelope{Data: res})
 }
 
-func GetUser(ctx *fiber.Ctx) datamodel.User {
+func GetUser(ctx *fiber.Ctx) userDataModel.User {
 	_ = ctx
-	return datamodel.User{ID: 11, Username: "demo-user"}
+	return userDataModel.User{ID: 11, Username: "demo-user"}
 }
 
 func fillHeaders(ctx *fiber.Ctx, req any) {
@@ -72,7 +72,7 @@ func fillHeaders(ctx *fiber.Ctx, req any) {
 
 	headers := map[string]string{}
 	for key, value := range ctx.GetReqHeaders() {
-		headers[key] = value
+		headers[key] = value[0]
 	}
 	headersField.Set(reflect.ValueOf(headers))
 }
