@@ -8,8 +8,9 @@ import (
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
+	"github.com/alianjidaniir-design/SamplePRJ/models/repositories"
 	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
@@ -35,6 +36,10 @@ func GetRepo() *Repository {
 		}
 	})
 	return repoIns
+}
+
+func init() {
+	repositories.TaskRepo = GetRepo()
 }
 
 func (repo *Repository) nextID() int64 {

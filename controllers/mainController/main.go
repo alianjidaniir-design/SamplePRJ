@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 	"github.com/gofiber/fiber/v2"
 )
@@ -32,7 +32,7 @@ func FinishAPISpan(ctx *fiber.Ctx) {
 
 func ParseBody(ctx *fiber.Ctx, req any) (string, int, error) {
 	if err := ctx.BodyParser(req); err != nil {
-		return "00", status.StatusBadRequest, err
+		return "01", status.StatusBadRequest, err
 	}
 
 	fillHeaders(ctx, req)

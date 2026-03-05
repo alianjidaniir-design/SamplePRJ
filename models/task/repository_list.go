@@ -7,7 +7,7 @@ import (
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
 	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 

@@ -7,7 +7,8 @@ import (
 
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/userSchema"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/dataModel"
+	"github.com/alianjidaniir-design/SamplePRJ/models/repositories"
+	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
@@ -31,6 +32,10 @@ func GetRepo() *Repository {
 	})
 
 	return repoIns
+}
+
+func init() {
+	repositories.UserRepo = GetRepo()
 }
 
 func (repo *Repository) nextID() int64 {
