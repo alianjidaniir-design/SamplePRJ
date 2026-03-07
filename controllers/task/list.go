@@ -14,13 +14,13 @@ func List(ctx *fiber.Ctx) error {
 
 	defer mainController.FinishAPISpan(ctx)
 
-	req := commonSchema.BaseRequest[taskSchema.ListRequest]{}
-
-	errStr, code, err := mainController.ParseBody(ctx, &req)
+	queryReq := taskSchema.ListRequest{}
+	errStr, code, err := mainController.ParseQuery(ctx, &queryReq)
 	if err != nil {
 		return mainController.Error(ctx, controllerBaseErrCode.TaskErrCode, "01", errStr, code, err)
 	}
 
+	req := commonSchema.BaseRequest[taskSchema.ListRequest]{Body: queryReq}
 	res, errStr, code, err := repositories.TaskRepo.List(spanCtx, req, mainController.GetUser(ctx))
 	if err != nil {
 		return mainController.Error(ctx, controllerBaseErrCode.TaskErrCode, "02", errStr, code, err)

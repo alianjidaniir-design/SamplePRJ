@@ -28,15 +28,7 @@ func TestListTask(t *testing.T) {
 		t.Fatalf("create api test failed: %v", err)
 	}
 
-	listPayload := map[string]any{
-		"body": map[string]any{
-			"page":    1,
-			"perPage": 10,
-		},
-	}
-	listBody, _ := json.Marshal(listPayload)
-	listReq, _ := http.NewRequest(http.MethodPost, "/task/list", bytes.NewReader(listBody))
-	listReq.Header.Set("Content-Type", "application/json")
+	listReq, _ := http.NewRequest(http.MethodGet, "/task/list?page=1&perPage=10", nil)
 	listRes, err := app.Test(listReq)
 	if err != nil {
 		t.Fatalf("list api test failed: %v", err)

@@ -43,6 +43,26 @@ func ParseBody(ctx *fiber.Ctx, req any) (string, int, error) {
 	return "", status.StatusOK, nil
 }
 
+func ParseQuery(ctx *fiber.Ctx, req any) (string, int, error) {
+	if err := ctx.QueryParser(req); err != nil {
+		return "01", status.StatusBadRequest, err
+	}
+
+	headers := map[string]string{}
+	for key, value := range ctx.GetReqHeaders() {
+		headers[key] = value[0]
+	}
+
+	validator, ok := req.(interface {
+		Validate(validateExtraData commonSchema.ValidateExtraData) (string, int, error)
+	})
+	if !ok {
+		return "", status.StatusOK, nil
+	}
+
+	return validator.Validate(commonSchema.ValidateExtraData{Headers: headers})
+}
+
 func Error(ctx *fiber.Ctx, baseErrCode string, section string, errStr string, code int, err error) error {
 	return ctx.Status(code).JSON(errorResponse{
 		ErrorCode: fmt.Sprintf("%s%s%s", baseErrCode, section, errStr),
@@ -60,7 +80,7 @@ func GetUser(ctx *fiber.Ctx) userDataModel.User {
 }
 
 // شود.- سپس `fillHeaders `را صدا میزند تا headers بھ فیلد `Headers `در request تزریق
-//- سپس `validateBody `را اجرا میکند.-
+// - سپس `validateBody `را اجرا میکند.-
 func fillHeaders(ctx *fiber.Ctx, req any) {
 	refValue := reflect.ValueOf(req)
 	if refValue.Kind() != reflect.Ptr || refValue.Elem().Kind() != reflect.Struct {

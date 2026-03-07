@@ -12,6 +12,6 @@ var taskRoutes = map[string]string{
 
 func SetupTaskRoute(app *fiber.App) map[string]string {
 	app.Post(taskRoutes["taskCreate"], Create)
-	app.Post(taskRoutes["taskList"], List)
+	app.Get(taskRoutes["taskList"], List)
 	return taskRoutes
 }
