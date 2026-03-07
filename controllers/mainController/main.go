@@ -59,6 +59,8 @@ func GetUser(ctx *fiber.Ctx) userDataModel.User {
 	return userDataModel.User{ID: 11, Username: "demo-user"}
 }
 
+// شود.- سپس `fillHeaders `را صدا میزند تا headers بھ فیلد `Headers `در request تزریق
+//- سپس `validateBody `را اجرا میکند.-
 func fillHeaders(ctx *fiber.Ctx, req any) {
 	refValue := reflect.ValueOf(req)
 	if refValue.Kind() != reflect.Ptr || refValue.Elem().Kind() != reflect.Struct {

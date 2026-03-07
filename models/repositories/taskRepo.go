@@ -9,7 +9,9 @@ import (
 )
 
 type TaskRepository interface {
+	// Create Method
 	Create(ctx context.Context, req commonSchema.BaseRequest[taskSchema.CreateRequest], user userDataModel.User) (res taskSchema.CreateResponse, errStr string, code int, err error)
+	// List method
 	List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest], user userDataModel.User) (res taskSchema.ListResponse, errStr string, code int, err error)
 }
 

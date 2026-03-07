@@ -11,6 +11,7 @@ import (
 
 func List(ctx *fiber.Ctx) error {
 	spanCtx := mainController.InitAPI(ctx, "12")
+
 	defer mainController.FinishAPISpan(ctx)
 
 	req := commonSchema.BaseRequest[taskSchema.ListRequest]{}
