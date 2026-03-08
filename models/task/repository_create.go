@@ -10,7 +10,6 @@ import (
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/models/repositories"
 	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
@@ -46,9 +45,8 @@ func (repo *Repository) nextID() int64 {
 	return atomic.AddInt64(&repo.idCounter, 1)
 }
 
-func (repo *Repository) Create(ctx context.Context, req commonSchema.BaseRequest[taskSchema.CreateRequest], user userDataModel.User) (res taskSchema.CreateResponse, errStr string, code int, err error) {
+func (repo *Repository) Create(ctx context.Context, req commonSchema.BaseRequest[taskSchema.CreateRequest]) (res taskSchema.CreateResponse, errStr string, code int, err error) {
 	_ = ctx
-	_ = user
 
 	task := taskDataModel.Task{
 		ID:          repo.nextID(),

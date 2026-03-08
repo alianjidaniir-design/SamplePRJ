@@ -7,13 +7,11 @@ import (
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
 	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 	"github.com/alianjidaniir-design/SamplePRJ/statics/constants/status"
 )
 
-func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest], user userDataModel.User) (res taskSchema.ListResponse, errStr string, code int, err error) {
+func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest]) (res taskSchema.ListResponse, errStr string, code int, err error) {
 	_ = ctx
-	_ = user
 
 	cacheKey := fmt.Sprintf("task:list:page:%d:perPage:%d", req.Body.Page, req.Body.PerPage)
 

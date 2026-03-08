@@ -7,7 +7,6 @@ import (
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/commonSchema"
 	"github.com/alianjidaniir-design/SamplePRJ/apiSchema/taskSchema"
 	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
-	userDataModel "github.com/alianjidaniir-design/SamplePRJ/models/user/datamodel"
 )
 
 func TestListCacheAndInvalidation(t *testing.T) {
@@ -24,7 +23,7 @@ func TestListCacheAndInvalidation(t *testing.T) {
 	createReq := commonSchema.BaseRequest[taskSchema.CreateRequest]{
 		Body: taskSchema.CreateRequest{Title: "cache-demo", Description: "v1"},
 	}
-	_, _, _, err := repo.Create(context.Background(), createReq, userDataModel.User{})
+	_, _, _, err := repo.Create(context.Background(), createReq)
 	if err != nil {
 		t.Fatalf("create failed: %v", err)
 	}
@@ -33,7 +32,7 @@ func TestListCacheAndInvalidation(t *testing.T) {
 		Body: taskSchema.ListRequest{Page: 1, PerPage: 10},
 	}
 
-	firstRes, _, _, err := repo.List(context.Background(), listReq, userDataModel.User{})
+	firstRes, _, _, err := repo.List(context.Background(), listReq)
 	if err != nil {
 		t.Fatalf("first list failed: %v", err)
 	}
@@ -45,7 +44,7 @@ func TestListCacheAndInvalidation(t *testing.T) {
 		t.Fatal("expected cache to be populated after first list")
 	}
 
-	secondRes, _, _, err := repo.List(context.Background(), listReq, userDataModel.User{})
+	secondRes, _, _, err := repo.List(context.Background(), listReq)
 	if err != nil {
 		t.Fatalf("second list failed: %v", err)
 	}
@@ -56,7 +55,7 @@ func TestListCacheAndInvalidation(t *testing.T) {
 	createReq2 := commonSchema.BaseRequest[taskSchema.CreateRequest]{
 		Body: taskSchema.CreateRequest{Title: "cache-demo-2", Description: "v2"},
 	}
-	_, _, _, err = repo.Create(context.Background(), createReq2, userDataModel.User{})
+	_, _, _, err = repo.Create(context.Background(), createReq2)
 	if err != nil {
 		t.Fatalf("second create failed: %v", err)
 	}
