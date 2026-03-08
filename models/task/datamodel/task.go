@@ -1,8 +1,8 @@
-package datamodel
+package dataModel
 
 type Task struct {
-	ID          int64  `json:"id" msgpack:"id"`
-	Title       string `json:"title" msgpack:"title"`
-	Description string `json:"description" msgpack:"description"`
-	CreatedAt   string `json:"createdAt" msgpack:"createdAt"`
+	ID          int64  `gorm:"column:id;primaryKey" json:"id" msgpack:"id"`
+	Title       string `gorm:"column:title" json:"title" msgpack:"title"`
+	Description string `gorm:"column:description" json:"description" msgpack:"description"`
+	CreatedAt   string `gorm:"column:created_at" json:"createdAt" msgpack:"createdAt"`
 }

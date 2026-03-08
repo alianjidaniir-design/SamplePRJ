@@ -1,7 +1,7 @@
 package taskSchema
 
 import (
-	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/datamodel"
+	taskDataModel "github.com/alianjidaniir-design/SamplePRJ/models/task/dataModel"
 )
 
 type CreateResponse struct {

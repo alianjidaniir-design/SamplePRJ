@@ -7,7 +7,7 @@
 ```bash
 mkdir -p apiSchema/commonSchema apiSchema/taskSchema \
 controllers/mainController controllers/task \
-models/repositories models/task/datamodel models/task/dataSources/mysql \
+models/repositories models/task/dataModel models/task/dataSources/mysql \
 services/core/route statics/constants/controllerBaseErrCode \
 statics/constants/status statics/customErr tests/task_tests \
 commands/user_migration
@@ -20,7 +20,7 @@ go get github.com/go-sql-driver/mysql
 ```
 
 ## مرحله 2: تعریف مدل دامنه
-1. فایل `models/task/datamodel/task.go` را بساز.
+1. فایل `models/task/dataModel/task.go` را بساز.
 2. struct `Task` را با فیلدهای زیر تعریف کن:
 - `ID int64`
 - `Title string`
