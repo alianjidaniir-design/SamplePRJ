@@ -11,9 +11,6 @@ import (
 
 func TestListCacheAndInvalidation(t *testing.T) {
 	repo := GetRepo()
-	if repo.initErr != nil {
-		t.Fatalf("repository init failed: %v", repo.initErr)
-	}
 
 	dbResetter, ok := repo.dbDS.(interface{ Reset() })
 	if !ok {

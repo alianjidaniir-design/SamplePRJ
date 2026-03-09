@@ -11,10 +11,6 @@ import (
 )
 
 func (repo *Repository) List(ctx context.Context, req commonSchema.BaseRequest[taskSchema.ListRequest]) (res taskSchema.ListResponse, errStr string, code int, err error) {
-	if repo.initErr != nil {
-		return taskSchema.ListResponse{}, "03", status.StatusInternalServerError, repo.initErr
-	}
-
 	cacheKey := fmt.Sprintf("task:list:page:%d:perPage:%d", req.Body.Page, req.Body.PerPage)
 	cachedRes, cacheHit := repo.cache().GetList(cacheKey)
 	if cacheHit {

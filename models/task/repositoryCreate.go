@@ -9,10 +9,6 @@ import (
 )
 
 func (repo *Repository) Create(ctx context.Context, req commonSchema.BaseRequest[taskSchema.CreateRequest]) (res taskSchema.CreateResponse, errStr string, code int, err error) {
-	if repo.initErr != nil {
-		return taskSchema.CreateResponse{}, "03", status.StatusInternalServerError, repo.initErr
-	}
-
 	createdTask, err := repo.db().CreateTask(ctx, req.Body)
 	if err != nil {
 		return taskSchema.CreateResponse{}, "04", status.StatusInternalServerError, err

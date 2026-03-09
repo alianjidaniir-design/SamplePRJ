@@ -14,29 +14,6 @@ Task:
 go run ./services/core
 ```
 
-### Run with MySQL table
-
-```bash
-export MYSQL_DSN="user:pass@tcp(127.0.0.1:3306)/sample"
-export MYSQL_TASK_TABLE="tasks"
-```
-
-Create table:
-
-```bash
-go run ./commands/user_migration
-```
-
-Start API:
-
-```bash
-go run ./services/core
-```
-
-Notes:
-- If `MYSQL_DSN` is empty, repository uses in-memory mode (useful for local tests).
-- If `MYSQL_DSN` is set, API uses MySQL and automatically ensures the task table on startup.
-
 ## Example requests
 
 ```bash
