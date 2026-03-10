@@ -30,7 +30,7 @@ func (ds *TaskDBDS) CreateTask(ctx context.Context, req taskSchema.CreateRequest
 		ID:          atomic.AddInt64(&ds.idCounter, 1),
 		Title:       req.Title,
 		Description: req.Description,
-		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		CreatedAt:   time.Now().Format("2006-01-02T15:04:05Z07:00"),
 	}
 
 	ds.lock.Lock()
