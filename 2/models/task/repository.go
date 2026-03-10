@@ -6,8 +6,8 @@ import (
 
 	"github.com/alianjidaniir-design/SamplePRJ/models/repositories"
 	taskDataSources "github.com/alianjidaniir-design/SamplePRJ/models/task/dataSources"
-	memoryDataSource "github.com/alianjidaniir-design/SamplePRJ/models/task/dataSources/memory"
-	mysqlDataSource "github.com/alianjidaniir-design/SamplePRJ/models/task/dataSources/mysql"
+	memoryDataSource "github.com/alianjidaniir-design/SamplePRJ/models/task/dataSources/memoryDS"
+	mysqlDataSource "github.com/alianjidaniir-design/SamplePRJ/models/task/dataSources/mysqlDS"
 )
 
 type Repository struct {

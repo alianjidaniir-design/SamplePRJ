@@ -24,7 +24,7 @@ export MYSQL_TASK_TABLE="tasks"
 Create table:
 
 ```bash
-go run ./commands/user_migration
+go run ./commands/userMigration
 ```
 
 Start API:

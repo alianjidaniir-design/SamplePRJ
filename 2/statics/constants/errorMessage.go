@@ -1,7 +1,7 @@
 package constants
 
 const (
-	InvalidTitle   = "invalid title"
-	InvalidPage    = "invalid page"
-	InvalidPerPage = "invalid perPage"
+	InvalidTitle   = "invalidTitle"
+	InvalidPage    = "invalidPage"
+	InvalidPerPage = "invalidPerPage"
 )

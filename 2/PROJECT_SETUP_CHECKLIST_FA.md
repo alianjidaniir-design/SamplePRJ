@@ -8,7 +8,7 @@
 mkdir -p apiSchema/commonSchema apiSchema/taskSchema \
 controllers/mainController controllers/task \
 models/repositories models/task/dataModel \
-models/task/dataSources/memory models/task/dataSources/mysql \
+models/task/dataSources/memoryDS models/task/dataSources/mysqlDS \
 services/core/route statics/constants/controllerBaseErrCode \
 statics/constants/status statics/customErr tests/task_tests commands
 ```
@@ -54,30 +54,30 @@ go get github.com/go-sql-driver/mysql
 - interface `TaskCacheDS`
 
 ## مرحله 6: پیاده‌سازی DataSourceهای Memory
-1. فایل `models/task/dataSources/memory/taskDBDS.go`:
+1. فایل `models/task/dataSources/memoryDS/taskDBDS.go`:
 - نگهداری taskها در حافظه
 - `CreateTask`
 - `ListTasks`
 - `Reset`
-2. فایل `models/task/dataSources/memory/taskCacheDS.go`:
+2. فایل `models/task/dataSources/memoryDS/taskCacheDS.go`:
 - `GetList`
 - `SetList`
 - `InvalidateList`
 - `Reset`
 
 ## مرحله 7: پیاده‌سازی DataSourceهای MySQL
-1. فایل `models/task/dataSources/mysql/config.go`:
+1. فایل `models/task/dataSources/mysqlDS/config.go`:
 - خواندن envها: `MYSQL_DSN`, `MYSQL_TASK_TABLE`
 - تنظیمات pool: `MYSQL_MAX_OPEN_CONNS`, `MYSQL_MAX_IDLE_CONNS`, `MYSQL_CONN_MAX_LIFETIME_SECONDS`
-2. فایل `models/task/dataSources/mysql/connection.go`:
+2. فایل `models/task/dataSources/mysqlDS/connection.go`:
 - اتصال با `database/sql`
 - driver: `go-sql-driver/mysql`
-3. فایل `models/task/dataSources/mysql/schema.go`:
+3. فایل `models/task/dataSources/mysqlDS/schema.go`:
 - validate نام جدول
 - `EnsureTaskTable(...)`
-4. فایل `models/task/dataSources/mysql/schema.sql`:
+4. فایل `models/task/dataSources/mysqlDS/schema.sql`:
 - SQL schema جدول task
-5. فایل `models/task/dataSources/mysql/taskDBDS.go`:
+5. فایل `models/task/dataSources/mysqlDS/taskDBDS.go`:
 - `CreateTask` با INSERT + SELECT
 - `ListTasks` با LIMIT/OFFSET + COUNT
 
@@ -143,14 +143,14 @@ go get github.com/go-sql-driver/mysql
 4. `statics/customErr/err.go`
 
 ## مرحله 14: Migration command
-1. فایل `commands/user_migration/main.go`:
+1. فایل `commands/userMigration/main.go`:
 - خواندن DSN از env یا فلگ `--dsn`
 - خواندن table از env یا فلگ `--table`
 - `EnsureTaskTable(...)` برای ساخت/اعتبارسنجی جدول
 2. اجرا:
 ```bash
 MYSQL_DSN="user:pass@tcp(127.0.0.1:3306)/sample?multiStatements=true" \
-go run ./commands/user_migration --table tasks
+go run ./commands/userMigration --table tasks
 ```
 
 ## مرحله 15: تست

@@ -1,4 +1,4 @@
-package mysql
+package mysqlDS
 
 import (
 	"context"
@@ -61,7 +61,7 @@ func (ds *TaskDBDS) CreateTask(ctx context.Context, req taskSchema.CreateRequest
 
 	var task taskDataModel.Task
 	var createdAt time.Time
-	readQuery := fmt.Sprintf("SELECT id, title, description, created_at FROM %s WHERE id = ?", ds.tableSQL)
+	readQuery := fmt.Sprintf("SELECT id, title, description, createdAt FROM %s WHERE id = ?", ds.tableSQL)
 	err = ds.db.QueryRowContext(ctx, readQuery, insertedID).Scan(
 		&task.ID,
 		&task.Title,
@@ -80,7 +80,7 @@ func (ds *TaskDBDS) ListTasks(ctx context.Context, page int, perPage int) ([]tas
 	offset := (page - 1) * perPage
 
 	rowsQuery := fmt.Sprintf(
-		"SELECT id, title, description, created_at FROM %s ORDER BY id ASC LIMIT ? OFFSET ?",
+		"SELECT id, title, description, createdAt FROM %s ORDER BY id ASC LIMIT ? OFFSET ?",
 		ds.tableSQL,
 	)
 	rows, err := ds.db.QueryContext(ctx, rowsQuery, perPage, offset)
