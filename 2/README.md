@@ -8,6 +8,10 @@ Task:
 - `POST /task/create`
 - `GET /task/list?page=1&perPage=10`
 
+User:
+- `POST /user/create`
+- `POST /user/info`
+
 ## Run
 
 ```bash
@@ -47,6 +51,18 @@ curl -X POST http://localhost:8080/task/create \
 
 ```bash
 curl "http://localhost:8080/task/list?page=1&perPage=10"
+```
+
+```bash
+curl -X POST http://localhost:8080/user/create \
+  -H 'Content-Type: application/json' \
+  -d '{"body":{"username":"virasty","email":"virasty@example.com"}}'
+```
+
+```bash
+curl -X POST http://localhost:8080/user/info \
+  -H 'Content-Type: application/json' \
+  -d '{"body":{"userID":11}}'
 ```
 
 ## Test

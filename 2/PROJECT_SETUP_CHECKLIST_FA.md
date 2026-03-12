@@ -1,259 +1,111 @@
-# چک‌لیست پیاده‌سازی پروژه به سبک Virasty (Task + MySQL)
+# چک‌لیست ساخت پروژه Virasty (Task + MySQL + Memory Fallback)
 
-این چک‌لیست مخصوص پروژه‌ای است که دامنه `task` دارد و همزمان از `MySQL` + `Memory fallback` استفاده می‌کند.
+این فایل برای ساخت/بازسازی همین پروژه داخل پوشه `2` نوشته شده است: دامنه `task` با Fiber، کش in-memory برای `task/list`، و دیتاسورس MySQL (در صورت تنظیم `MYSQL_DSN`) با fallback حافظه.
 
-## اهداف پوشه‌ها و فایل‌ها
+## هدف پوشه‌ها
 
-### اهداف پوشه‌ها
+- `apiSchema/`: قرارداد API (request/response/validate) و مدل‌های ورودی/خروجی.
+- `controllers/`: هندلرهای HTTP؛ فقط orchestration (parse/validate -> repo -> response/error).
+- `models/`: هسته business/data.
+- `models/repositories/`: interface repoها و متغیرهای global برای inject (مثل `TaskRepo`).
+- `models/task/`: پیاده‌سازی use-caseهای دامنه task (Create/List) و singleton repo.
+- `models/task/dataSources/`: contract دیتاسورس‌ها + پیاده‌سازی‌ها.
+- `models/task/dataSources/memoryDS/`: دیتابیس و کش حافظه (برای تست/لوکال).
+- `models/task/dataSources/mysqlDS/`: اتصال MySQL، schema helper، و پیاده‌سازی datasource.
+- `services/`: entrypoint سرویس و route registration.
+- `statics/`: کدهای status، base error code، پیام خطا و custom errorها.
+- `tests/`: تست‌های API-level برای endpointها.
+- `commands/`: اسکریپت‌های CLI (migration/reindex/stats).
+- `middleware/`: جای middlewareهای سراسری (فعلاً reserved).
+- `pkg/`: پکیج‌های مشترک (فعلاً reserved).
+- `template/`: templateهای feature (فعلاً reserved).
 
-- `apiSchema/`: قراردادهای API (request/response/validate) به تفکیک دامنه.
-- `apiSchema/commonSchema/`: ساختارهای مشترک مثل envelope درخواست (`BaseRequest`) و داده‌های کمکی validate.
-- `apiSchema/taskSchema/`: request/response/validate مخصوص دامنه `task`.
-- `controllers/`: هندلرهای HTTP به تفکیک دامنه.
-- `controllers/mainController/`: توابع مشترک کنترلرها (ParseBody/ParseQuery/Response/Error و ...).
-- `controllers/task/`: endpointهای `task` (مثل create و list).
-- `models/`: دامنه و business + repository pattern.
-- `models/repositories/`: interfaceها و متغیرهای سراسری repositoryها (مثل `var TaskRepo ...`).
-- `models/task/`: repository دامنه task و wiring datasourceها.
-- `models/task/dataModel/`: مدل داده (DTO/Entity) دامنه task.
-- `models/task/dataSources/`: قرارداد datasourceها + پیاده‌سازی‌ها.
-- `models/task/dataSources/memoryDS/`: datasourceهای حافظه (DB + cache) برای fallback و تست.
-- `models/task/dataSources/mysqlDS/`: datasource MySQL (config/connection/schema/query).
-- `services/`: سرویس‌های قابل اجرا (در این پروژه فقط `core`).
-- `services/core/`: entrypoint API و setup کلی.
-- `services/core/route/`: map مسیرها + setup routeها.
-- `statics/`: ثابت‌ها و خطاها.
-- `statics/constants/`: ثابت‌های متنی/کلید خطا و status code.
-- `statics/constants/controllerBaseErrCode/`: base error code دامنه‌ها.
-- `statics/constants/status/`: HTTP status codeها.
-- `statics/customErr/`: تعریف errorها با `errors.New(...)` از روی constantها.
-- `commands/`: اسکریپت‌های CLI و migration.
-- `tests/`: تست‌های API (integration) به تفکیک دامنه.
-- `template/`: قالب feature جدید (اختیاری/برای توسعه‌های بعدی).
-- `middleware/`: middlewareها (در این نمونه استفاده نشده، ولی در معماری Virasty وجود دارد).
+## هدف فایل‌های کلیدی (Task + MySQL)
 
-### اهداف فایل‌ها
+- `services/core/main.go`: ورودی اصلی API؛ ساخت app Fiber، رجیستر routeها، اجرا روی `:8080`.
+- `services/core/route/route.go`: تجمیع route mapها (در این پروژه فقط task).
+- `services/core/route/taskRoute.go`: تعریف و رجیستر endpointها:
+  - `POST /task/create`
+  - `GET /task/list?page=1&perPage=10`
+- `controllers/mainController/main.go`: ابزارهای مشترک controller:
+  - `InitAPI` و `FinishAPISpan` (فعلاً ساده)
+  - `ParseBody` برای POST body
+  - `ParseQuery` برای GET query
+  - `Response` و `Error` برای پاسخ استاندارد
+- `controllers/task/create.go`: جریان `POST /task/create` (ParseBody -> Validate -> Repo.Create -> Response/Error).
+- `controllers/task/list.go`: جریان `GET /task/list` (ParseQuery -> Validate -> Repo.List -> Response/Error).
+- `apiSchema/commonSchema/base.go`: wrapper `BaseRequest[T]` و `ValidateExtraData`.
+- `apiSchema/taskSchema/request.go`: ورودی‌های `CreateRequest` و `ListRequest`.
+- `apiSchema/taskSchema/validate.go`: قوانین اعتبارسنجی (title/page/perPage).
+- `apiSchema/taskSchema/response.go`: خروجی‌های `CreateResponse` و `ListResponse`.
+- `models/repositories/taskRepo.go`: interface `TaskRepository` و `var TaskRepo TaskRepository`.
+- `models/task/repository.go`: singleton repository + انتخاب دیتاسورس:
+  - اگر `MYSQL_DSN` ست باشد: `mysqlDS.NewTaskDBDSFromEnv()`
+  - اگر خالی باشد: `memoryDS.NewTaskDBDS(...)`
+  - کش list همیشه in-memory است (`memoryDS.NewTaskCacheDS()`).
+- `models/task/repositoryCreate.go`: use-case create:
+  - ساخت task از طریق db datasource
+  - `InvalidateList()` روی cache datasource
+- `models/task/repositoryList.go`: use-case list:
+  - cache hit/miss
+  - خواندن list از db datasource
+  - clone response برای جلوگیری از mutation
+- `models/task/dataSources/taskDS.go`: interfaceهای `TaskDBDS` و `TaskCacheDS`.
+- `models/task/dataSources/memoryDS/taskDBDS.go`: پیاده‌سازی DB حافظه (Create/List + Reset برای تست).
+- `models/task/dataSources/memoryDS/taskCacheDS.go`: کش حافظه (Get/Set/Invalidate + Reset).
+- `models/task/dataSources/mysqlDS/config.go`: خواندن env و نرمال‌سازی DSN.
+- `models/task/dataSources/mysqlDS/connection.go`: ساخت و تنظیم pool `database/sql` + import driver MySQL.
+- `models/task/dataSources/mysqlDS/schema.go` و `schema.sql`: validate نام جدول + helper ساخت جدول.
+- `models/task/dataSources/mysqlDS/taskDBDS.go`: پیاده‌سازی MySQL (INSERT/SELECT + LIMIT/OFFSET + COUNT).
+- `commands/userMigration/main.go`: ساخت/اطمینان از وجود جدول task در MySQL (برای migration اولیه).
+- `tests/task_tests/taskCreate_test.go`: تست `POST /task/create`.
+- `tests/task_tests/taskList_test.go`: تست `GET /task/list`.
 
-- `go.mod`: ماژول پروژه و وابستگی‌ها (Fiber + MySQL driver).
-- `services/core/main.go`: اجرای Fiber app، ثبت routeها، و `Listen`.
-- `services/core/route/route.go`: تابع `SetupRoutes` و merge کردن route-mapها.
-- `services/core/route/taskRoute.go`: map مسیرهای task و ثبت endpointها روی Fiber.
-- `controllers/mainController/main.go`: هسته کنترلر: `InitAPI`, `ParseBody`, `ParseQuery`, `Response`, `Error`.
-- `controllers/task/create.go`: handler ساخت task (ParseBody → Repo.Create → Response/Error).
-- `controllers/task/list.go`: handler لیست task (ParseQuery → Repo.List → Response/Error).
-- `apiSchema/commonSchema/base.go`: `BaseRequest[T]` و `ValidateExtraData`.
-- `apiSchema/taskSchema/request.go`: ساختار `CreateRequest` و `ListRequest`.
-- `apiSchema/taskSchema/response.go`: ساختار `CreateResponse` و `ListResponse`.
-- `apiSchema/taskSchema/validate.go`: متدهای `Validate` برای requestها.
-- `models/repositories/taskRepo.go`: interface `TaskRepository` و `var TaskRepo`.
-- `models/task/repository.go`: singleton repo + انتخاب MySQL یا memory بر اساس `MYSQL_DSN`.
-- `models/task/repositoryCreate.go`: منطق `Create` + invalidation کش لیست.
-- `models/task/repositoryList.go`: منطق `List` + cache hit/miss + pagination.
-- `models/task/repositoryCache_test.go`: تست cache/invalidation در حالت memory datasource.
-- `models/task/dataModel/task.go`: تعریف struct `Task` (ID/Title/Description/CreatedAt).
-- `models/task/dataSources/taskDS.go`: interfaceهای datasource: `TaskDBDS` و `TaskCacheDS`.
-- `models/task/dataSources/memoryDS/taskDBDS.go`: دیتاسورس DB حافظه برای create/list.
-- `models/task/dataSources/memoryDS/taskCacheDS.go`: دیتاسورس cache حافظه برای لیست‌ها.
-- `models/task/dataSources/mysqlDS/config.go`: خواندن envها و normalize کردن DSN.
-- `models/task/dataSources/mysqlDS/connection.go`: ساخت pool با `database/sql` و `Ping`.
-- `models/task/dataSources/mysqlDS/schema.go`: validate table name + `EnsureTaskTable`.
-- `models/task/dataSources/mysqlDS/schema.sql`: SQL رسمی جدول برای migration دستی.
-- `models/task/dataSources/mysqlDS/taskDBDS.go`: پیاده‌سازی queryهای MySQL برای create/list.
-- `models/task/dataSources/mysqlDS/types.go`: interface کمکی `DBExecutor`.
-- `statics/constants/controllerBaseErrCode/base.go`: base err code دامنه task.
-- `statics/constants/status/status.go`: status codeهای HTTP.
-- `statics/constants/errorMessage.go`: کلیدهای خطا به صورت string ثابت.
-- `statics/customErr/err.go`: errorهای دامنه task (wrapping روی constantها).
-- `commands/userMigration/main.go`: migration/ensure table برای MySQL.
-- `commands/statsUpdate/main.go`: نمونه اسکریپت maintenance (placeholder).
-- `commands/elasticSearchReindex/main.go`: نمونه اسکریپت reindex (placeholder).
-- `tests/task_tests/taskCreate_test.go`: تست create endpoint با `app.Test`.
-- `tests/task_tests/taskList_test.go`: تست list endpoint با `app.Test`.
+## چک‌لیست اجرا (روی پروژه جدید)
 
-## مرحله 1: ساخت اسکلت پروژه
-1. پوشه‌های اصلی را بساز:
+1. ساخت پوشه‌ها مطابق ساختار بالا.
+2. تعریف مدل `Task` در `models/task/dataModel/task.go`.
+3. تعریف schemaها و validateها در `apiSchema/taskSchema/`.
+4. تعریف `TaskRepository` در `models/repositories/taskRepo.go`.
+5. پیاده‌سازی دیتاسورس‌های memory و mysql در `models/task/dataSources/`.
+6. پیاده‌سازی repository singleton و use-caseها در `models/task/`.
+7. پیاده‌سازی controllerهای مشترک و controllerهای task.
+8. رجیستر routeها در `services/core/route/`.
+9. اجرای `gofmt` بعد از هر تغییر کد Go:
+   - بررسی: `find . -name '*.go' -not -path './pkg/.cache/*' -print0 | xargs -0 gofmt -l`
+   - اعمال: `find . -name '*.go' -not -path './pkg/.cache/*' -print0 | xargs -0 gofmt -w`
+10. اجرای `go mod tidy` و سپس `go test ./...`.
+
+## اجرا (Memory fallback)
+
 ```bash
-mkdir -p apiSchema/commonSchema apiSchema/taskSchema \
-controllers/mainController controllers/task \
-models/repositories models/task/dataModel \
-models/task/dataSources/memoryDS models/task/dataSources/mysqlDS \
-services/core/route statics/constants/controllerBaseErrCode \
-statics/constants/status statics/customErr tests/task_tests commands
-```
-2. فایل `go.mod` را ایجاد کن.
-3. وابستگی‌ها را نصب کن:
-```bash
-go get github.com/gofiber/fiber/v2
-go get github.com/go-sql-driver/mysql
+go run ./services/core
 ```
 
-## مرحله 2: تعریف مدل دامنه
-1. فایل `models/task/dataModel/task.go` را بساز.
-2. struct `Task` را تعریف کن:
-- `ID int64`
-- `Title string`
-- `Description string`
-- `CreatedAt string`
+## اجرا (MySQL mode)
 
-## مرحله 3: تعریف قراردادهای API
-1. فایل `apiSchema/commonSchema/base.go`:
-- `BaseRequest[T]`
-- `ValidateExtraData`
-2. فایل `apiSchema/taskSchema/request.go`:
-- `CreateRequest`
-- `ListRequest`
-3. فایل `apiSchema/taskSchema/response.go`:
-- `CreateResponse`
-- `ListResponse`
-4. فایل `apiSchema/taskSchema/validate.go`:
-- `title` خالی نباشد
-- `page >= 1`
-- `1 <= perPage <= 100`
-
-## مرحله 4: تعریف Repository Interface
-1. فایل `models/repositories/taskRepo.go`:
-- `Create(ctx, req)`
-- `List(ctx, req)`
-- `var TaskRepo TaskRepository`
-
-## مرحله 5: تعریف DataSource Contract
-1. فایل `models/task/dataSources/taskDS.go`:
-- interface `TaskDBDS`
-- interface `TaskCacheDS`
-
-## مرحله 6: پیاده‌سازی DataSourceهای Memory
-1. فایل `models/task/dataSources/memoryDS/taskDBDS.go`:
-- نگهداری taskها در حافظه
-- `CreateTask`
-- `ListTasks`
-- `Reset`
-2. فایل `models/task/dataSources/memoryDS/taskCacheDS.go`:
-- `GetList`
-- `SetList`
-- `InvalidateList`
-- `Reset`
-
-## مرحله 7: پیاده‌سازی DataSourceهای MySQL
-1. فایل `models/task/dataSources/mysqlDS/config.go`:
-- خواندن envها: `MYSQL_DSN`, `MYSQL_TASK_TABLE`
-- تنظیمات pool: `MYSQL_MAX_OPEN_CONNS`, `MYSQL_MAX_IDLE_CONNS`, `MYSQL_CONN_MAX_LIFETIME_SECONDS`
-2. فایل `models/task/dataSources/mysqlDS/connection.go`:
-- اتصال با `database/sql`
-- driver: `go-sql-driver/mysql`
-3. فایل `models/task/dataSources/mysqlDS/schema.go`:
-- validate نام جدول
-- `EnsureTaskTable(...)`
-4. فایل `models/task/dataSources/mysqlDS/schema.sql`:
-- SQL schema جدول task
-5. فایل `models/task/dataSources/mysqlDS/taskDBDS.go`:
-- `CreateTask` با INSERT + SELECT
-- `ListTasks` با LIMIT/OFFSET + COUNT
-
-## مرحله 8: پیاده‌سازی Repository Task
-1. فایل `models/task/repository.go`:
-- singleton با `sync.Once`
-- مقداردهی `repositories.TaskRepo` در `init()`
-- انتخاب datasource:
-  - اگر `MYSQL_DSN` ست باشد: mysql datasource
-  - اگر خالی باشد: memory datasource
-- اتصال cache datasource حافظه
-2. فایل `models/task/repositoryCreate.go`:
-- create task از طریق db datasource
-- invalidation کش لیست
-3. فایل `models/task/repositoryList.go`:
-- cache key بر اساس `page/perPage`
-- cache hit/miss
-- خواندن list از db datasource
-- `cloneListResponse`
-4. فایل `models/task/repositoryCache_test.go`:
-- تست رفتار cache و invalidation
-
-## مرحله 9: Controller مشترک
-1. فایل `controllers/mainController/main.go`:
-- `InitAPI`
-- `FinishAPISpan`
-- `ParseBody`
-- `ParseQuery`
-- `Response`
-- `Error`
-- `fillHeaders`
-- `validateBody`
-
-## مرحله 10: Controllerهای Task
-1. فایل `controllers/task/create.go`:
-- ParseBody
-- call `TaskRepo.Create`
-- return Response/Error
-2. فایل `controllers/task/list.go`:
-- ParseQuery
-- call `TaskRepo.List`
-- return Response/Error
-
-## مرحله 11: Routeها
-1. فایل `services/core/route/taskRoute.go`:
-- `POST /task/create`
-- `GET /task/list`
-2. فایل `services/core/route/route.go`:
-- `SetupRoutes`
-- merge route maps
-
-## مرحله 12: Entrypoint سرویس
-1. فایل `services/core/main.go`:
-- ساخت Fiber app
-- `SetupRoutes`
-- `app.Listen(":8080")`
-- blank import برای `models/task`
-
-## مرحله 13: Constants و Errorها
-1. `statics/constants/controllerBaseErrCode/base.go`
-2. `statics/constants/status/status.go`
-3. `statics/constants/errorMessage.go`
-4. `statics/customErr/err.go`
-
-## مرحله 14: Migration command
-1. فایل `commands/userMigration/main.go`:
-- خواندن DSN از env یا فلگ `--dsn`
-- خواندن table از env یا فلگ `--table`
-- `EnsureTaskTable(...)` برای ساخت/اعتبارسنجی جدول
-2. اجرا:
+1. تنظیم env:
 ```bash
-MYSQL_DSN="user:pass@tcp(127.0.0.1:3306)/sample?multiStatements=true" \
+export MYSQL_DSN="user:pass@tcp(127.0.0.1:3306)/sample?multiStatements=true"
+export MYSQL_TASK_TABLE="tasks"
+```
+2. ساخت جدول:
+```bash
 go run ./commands/userMigration --table tasks
 ```
-
-## مرحله 15: تست
-1. `tests/task_tests/taskCreate_test.go`
-2. `tests/task_tests/taskList_test.go`
-3. اجرای تست:
-```bash
-go test ./...
-```
-
-## مرحله 16: اجرای پروژه
-1. اجرای API با fallback حافظه:
+3. اجرای API:
 ```bash
 go run ./services/core
 ```
-2. اجرای API با MySQL:
-```bash
-export MYSQL_DSN="user:pass@tcp(127.0.0.1:3306)/sample"
-export MYSQL_TASK_TABLE="tasks"
-go run ./services/core
-```
-3. تست دستی API:
+
+## تست دستی endpointها
+
 ```bash
 curl -X POST http://localhost:8080/task/create \
   -H 'Content-Type: application/json' \
   -d '{"body":{"title":"Write docs","description":"draft"}}'
 ```
+
 ```bash
 curl "http://localhost:8080/task/list?page=1&perPage=10"
 ```
-
-## مرحله 17: چک نهایی
-1. `gofmt` اجرا شده باشد.
-2. `go mod tidy` اجرا شده باشد.
-3. `go test ./...` پاس باشد.
-4. پاسخ موفق envelope استاندارد `{data: ...}` داشته باشد.
-5. خطاها با فرمت `base + section + errStr` برگردند.
-6. هر دو mode (MySQL و Memory fallback) سالم کار کنند.

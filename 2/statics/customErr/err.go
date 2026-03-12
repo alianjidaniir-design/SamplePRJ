@@ -7,7 +7,11 @@ import (
 )
 
 var (
-	InvalidTitle   = errors.New(constants.InvalidTitle)
-	InvalidPage    = errors.New(constants.InvalidPage)
-	InvalidPerPage = errors.New(constants.InvalidPerPage)
+	InvalidTitle    = errors.New(constants.InvalidTitle)
+	InvalidPage     = errors.New(constants.InvalidPage)
+	InvalidPerPage  = errors.New(constants.InvalidPerPage)
+	InvalidUsername = errors.New(constants.InvalidUsername)
+	InvalidEmail    = errors.New(constants.InvalidEmail)
+	InvalidUserID   = errors.New(constants.InvalidUserID)
+	UserNotFound    = errors.New(constants.UserNotFound)
 )
