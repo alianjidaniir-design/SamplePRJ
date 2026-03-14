@@ -9,3 +9,13 @@ type ListRequest struct {
 	Page    int `json:"page" msgpack:"page" validate:"required"`
 	PerPage int `json:"perPage" msgpack:"perPage" validate:"required"`
 }
+
+type UpdateRequest struct {
+	TaskID      int64   `json:"taskID" msgpack:"taskID" validate:"required"`
+	Title       *string `json:"title,omitempty" msgpack:"title,omitempty"`
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty"`
+}
+
+type DeleteRequest struct {
+	TaskID int64 `json:"taskID" msgpack:"taskID" validate:"required"`
+}

@@ -7,6 +7,8 @@ This project is rebuilt from scratch based on `VIRASTY_CODING_STYLE_GUIDE.md`.
 Task:
 - `POST /task/create`
 - `GET /task/list?page=1&perPage=10`
+- `POST /task/update`
+- `POST /task/delete` (soft delete)
 
 User:
 - `POST /user/create`
@@ -51,6 +53,18 @@ curl -X POST http://localhost:8080/task/create \
 
 ```bash
 curl "http://localhost:8080/task/list?page=1&perPage=10"
+```
+
+```bash
+curl -X POST http://localhost:8080/task/update \
+  -H 'Content-Type: application/json' \
+  -d '{"body":{"taskID":101,"title":"new title","description":"new description"}}'
+```
+
+```bash
+curl -X POST http://localhost:8080/task/delete \
+  -H 'Content-Type: application/json' \
+  -d '{"body":{"taskID":101}}'
 ```
 
 ```bash

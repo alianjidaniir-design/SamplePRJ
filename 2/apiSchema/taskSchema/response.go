@@ -14,3 +14,11 @@ type ListResponse struct {
 	PerPage int                  `json:"perPage" msgpack:"perPage"`
 	Total   int                  `json:"total" msgpack:"total"`
 }
+
+type UpdateResponse struct {
+	Task taskDataModel.Task `json:"task" msgpack:"task"`
+}
+
+type DeleteResponse struct {
+	Task taskDataModel.Task `json:"task" msgpack:"task"`
+}

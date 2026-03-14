@@ -3,6 +3,7 @@ package task_tests
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"testing"
 
@@ -36,5 +37,13 @@ func TestListTask(t *testing.T) {
 
 	if listRes.StatusCode != http.StatusOK {
 		t.Fatalf("expected status %d, got %d", http.StatusOK, listRes.StatusCode)
+	}
+
+	bodyBytes, err := io.ReadAll(listRes.Body)
+	if err != nil {
+		t.Fatalf("read list response failed: %v", err)
+	}
+	if len(bodyBytes) == 0 {
+		t.Fatal("expected non-empty list response body")
 	}
 }

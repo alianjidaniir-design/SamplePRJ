@@ -10,6 +10,8 @@ import (
 type TaskDBDS interface {
 	CreateTask(ctx context.Context, req taskSchema.CreateRequest) (taskDataModel.Task, error)
 	ListTasks(ctx context.Context, page int, perPage int) ([]taskDataModel.Task, int, error)
+	UpdateTask(ctx context.Context, req taskSchema.UpdateRequest) (taskDataModel.Task, bool, error)
+	SoftDeleteTask(ctx context.Context, taskID int64) (taskDataModel.Task, bool, error)
 }
 
 type TaskCacheDS interface {

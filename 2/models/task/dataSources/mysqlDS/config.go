@@ -48,22 +48,19 @@ func readEnvInt(envName string, defaultValue int) int {
 	if raw == "" {
 		return defaultValue
 	}
-
 	value, err := strconv.Atoi(raw)
 	if err != nil || value <= 0 {
 		return defaultValue
 	}
-
 	return value
 }
-
 func normalizeDSN(dsn string) string {
 	if dsn == "" {
 		return ""
 	}
 
 	if !strings.Contains(dsn, "?") {
-		return dsn + "?parseTime=true&loc=UTC&charset=utf8mb4"
+		return dsn + "?parseTime=true&loc=Asia%2FTehran&time_zone=%27%2B03:30%27&charset=utf8mb4"
 	}
 
 	base, queryPart, _ := strings.Cut(dsn, "?")
@@ -76,7 +73,10 @@ func normalizeDSN(dsn string) string {
 		queryValues.Set("parseTime", "true")
 	}
 	if queryValues.Get("loc") == "" {
-		queryValues.Set("loc", "UTC")
+		queryValues.Set("loc", "Asia/Tehran")
+	}
+	if queryValues.Get("time_zone") == "" {
+		queryValues.Set("time_zone", "'+03:30'")
 	}
 	if queryValues.Get("charset") == "" {
 		queryValues.Set("charset", "utf8mb4")

@@ -30,3 +30,38 @@ func (req *ListRequest) Validate(validateExtraData commonSchema.ValidateExtraDat
 	_ = validateExtraData
 	return "", status.StatusOK, nil
 }
+
+func (req *UpdateRequest) Validate(validateExtraData commonSchema.ValidateExtraData) (string, int, error) {
+	if req.TaskID < 1 {
+		return "03", status.StatusBadRequest, customErr.InvalidTaskID
+	}
+
+	if req.Title == nil && req.Description == nil {
+		return "06", status.StatusBadRequest, customErr.InvalidUpdate
+	}
+
+	if req.Title != nil {
+		trimmed := strings.TrimSpace(*req.Title)
+		if trimmed == "" {
+			return "09", status.StatusBadRequest, customErr.InvalidTitle
+		}
+		req.Title = &trimmed
+	}
+
+	if req.Description != nil {
+		trimmed := strings.TrimSpace(*req.Description)
+		req.Description = &trimmed
+	}
+
+	_ = validateExtraData
+	return "", status.StatusOK, nil
+}
+
+func (req *DeleteRequest) Validate(validateExtraData commonSchema.ValidateExtraData) (string, int, error) {
+	if req.TaskID < 1 {
+		return "03", status.StatusBadRequest, customErr.InvalidTaskID
+	}
+
+	_ = validateExtraData
+	return "", status.StatusOK, nil
+}

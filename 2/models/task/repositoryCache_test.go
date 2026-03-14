@@ -68,4 +68,52 @@ func TestListCacheAndInvalidation(t *testing.T) {
 	if cacheHit {
 		t.Fatal("expected cache invalidation after create")
 	}
+
+	createdRes, _, _, err := repo.Create(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("create for update failed: %v", err)
+	}
+
+	_, _, _, err = repo.List(context.Background(), listReq)
+	if err != nil {
+		t.Fatalf("list for update failed: %v", err)
+	}
+	_, cacheHit = repo.cacheDS.GetList(cacheKey)
+	if !cacheHit {
+		t.Fatal("expected cache to be populated before update")
+	}
+
+	updateTitle := "cache-updated"
+	updateReq := commonSchema.BaseRequest[taskSchema.UpdateRequest]{
+		Body: taskSchema.UpdateRequest{TaskID: createdRes.Task.ID, Title: &updateTitle},
+	}
+	_, _, _, err = repo.Update(context.Background(), updateReq)
+	if err != nil {
+		t.Fatalf("update failed: %v", err)
+	}
+	_, cacheHit = repo.cacheDS.GetList(cacheKey)
+	if cacheHit {
+		t.Fatal("expected cache invalidation after update")
+	}
+
+	_, _, _, err = repo.List(context.Background(), listReq)
+	if err != nil {
+		t.Fatalf("list for delete failed: %v", err)
+	}
+	_, cacheHit = repo.cacheDS.GetList(cacheKey)
+	if !cacheHit {
+		t.Fatal("expected cache to be populated before delete")
+	}
+
+	deleteReq := commonSchema.BaseRequest[taskSchema.DeleteRequest]{
+		Body: taskSchema.DeleteRequest{TaskID: createdRes.Task.ID},
+	}
+	_, _, _, err = repo.Delete(context.Background(), deleteReq)
+	if err != nil {
+		t.Fatalf("delete failed: %v", err)
+	}
+	_, cacheHit = repo.cacheDS.GetList(cacheKey)
+	if cacheHit {
+		t.Fatal("expected cache invalidation after delete")
+	}
 }
