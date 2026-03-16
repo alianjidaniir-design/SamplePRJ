@@ -226,16 +226,12 @@ func (ds *TaskDBDS) readTaskByID(ctx context.Context, taskID int64) (taskDataMod
 	var deletedAt sql.NullTime
 
 	createdColumn := "created_at"
-	readQuery := fmt.Sprintf(
-		"SELECT id, title, description, %s, updated_at, deleted_at FROM %s WHERE id = ?",
-		createdColumn,
-		ds.tableSQL,
-	)
+	readQuery := fmt.Sprintf("SELECT id, title, description, %s, updated_at, deleted_at FROM %s WHERE id = ?", createdColumn, ds.tableSQL)
 
 	err := ds.db.QueryRowContext(ctx, readQuery, taskID).Scan(&task.ID, &task.Title, &task.Description, &createdAt, &updatedAt, &deletedAt)
 	if err != nil && isUnknownColumnErr(err) {
 		createdColumn = "createdAt"
-		readQuery = fmt.Sprintf("SELECT id, title, description, %s FROM %s WHERE id = ?", createdColumn, ds.tableSQL)
+		readQuery = fmt.Sprintf("SELECT id, title, description, %s FzROM %s WHERE id = ?", createdColumn, ds.tableSQL)
 		err = ds.db.QueryRowContext(ctx, readQuery, taskID).Scan(&task.ID, &task.Title, &task.Description, &createdAt)
 	}
 	if err != nil {
