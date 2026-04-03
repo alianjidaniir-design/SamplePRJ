@@ -2,7 +2,7 @@ module github.com/alianjidaniir-design/SamplePRJ
 
 go 1.25.3
 
-require github.com/gofiber/fiber/v2 v2.52.9
+require github.com/gofiber/fiber/v2 v2.52.12-0.20260206174030-5494de86f38e
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
